@@ -1,21 +1,20 @@
 <template>
-  <el-container>
-    <el-row>
-      <el-col :span="24">
-        <div class="grid-content bg-purple-dark">
+  <el-container style="
+    position: relative;
+    height: 100%;
+  ">
+    <el-aside width="200px" height="100%">
+      <sidebar></sidebar>
+    </el-aside>
+    <el-container>
+      <el-header>
         <navbar></navbar>
-      </div>
-      </el-col>
-      <el-row>
-        <el-col :span="12"><div class="grid-content bg-purple">
-          <sidebar></sidebar>
-        </div></el-col>
-        <el-col :span="12"><div class="grid-content bg-purple-light">
-          <app-main></app-main>
-        </div></el-col>
-      </el-row>
-    </el-row>
-  </el-container>
+      </el-header>
+      <el-main>
+        <app-main></app-main>
+      </el-main>
+    </el-container>
+</el-container>
 </template>
 
 <script>
@@ -30,6 +29,11 @@ export default {
   computed: {
     sidebar () {
       return this.$store.state.app.sidebar
+    }
+  },
+  methods: {
+    CloseSidebar () {
+      this.$store.dispatch('')
     }
   }
 }
