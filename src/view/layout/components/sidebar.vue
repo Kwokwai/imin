@@ -7,10 +7,10 @@
    		<span>Kwok</span>
    	</el-menu>
     <el-menu
-      default-active="2"
-      class="el-menu-vertical-demo"
-      @open="handleOpen"
-      @close="handleClose">
+		default-active="2"
+		class="el-menu-vertical-demo"
+		@open="handleOpen"
+		@close="handleClose">
       <el-submenu index="1">
         <template slot="title">
           <i class="el-icon-location"></i>
@@ -57,3 +57,10 @@
     }
   }
 </script>
+
+<style>
+  .el-menu-vertical-demo:not(.el-menu--collapse) {
+    width: 200px;
+    min-height: 400px;
+  }
+</style>

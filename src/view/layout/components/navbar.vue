@@ -1,6 +1,5 @@
 <template>
 	<el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
-	   <el-menu-item index="1">处理中心</el-menu-item>
 	    <el-dropdown class="avatar-container" trigger="click" style="inline-height">
 	      <div class="avatar-wrapper">
 	        <img data-v-1b90192e="" src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif?imageView2/1/w/80/h/80" class="user-avatar">
@@ -25,11 +24,18 @@
     data() {
       return {
         activeIndex: '1',
-        activeIndex2: '1'
+        activeIndex2: '1',
+        isCollapse: true
       };
     },
     methods: {
       handleSelect(key, keyPath) {
+        console.log(key, keyPath);
+      },
+      handleOpen(key, keyPath) {
+        console.log(key, keyPath);
+      },
+      handleClose(key, keyPath) {
         console.log(key, keyPath);
       }
     }
@@ -50,4 +56,8 @@
 	    display: inline-block;
 	    margin-top: 5px
 	}
+ 	.el-menu-vertical-demo:not(.el-menu--collapse) {
+	    width: 200px;
+	    min-height: 400px;
+  }
 </style>
