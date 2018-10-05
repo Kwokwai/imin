@@ -1,21 +1,30 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
+
+import 'normalize.css/normalize.css'// A modern alternative to CSS resets
+
+import ElementUI from 'element-ui'
+import mavonEditor from 'mavon-editor'
+import 'element-ui/lib/theme-chalk/index.css'
+import 'mavon-editor/dist/css/index.css'
+import locale from 'element-ui/lib/locale/lang/en' // lang i18n
+
+import '@/styles/index.scss' // global css
+
 import App from './App'
 import router from './router'
-import ElementUI from 'element-ui'
-import Less from 'less'
-import 'element-ui/lib/theme-chalk/index.css'
+import store from './store'
 
-Vue.use(ElementUI)
-Vue.use(Less)
+import '@/icons' // icon
+import '@/permission' // permission control
+
+Vue.use(ElementUI, { locale })
+Vue.use(mavonEditor)
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
-  components: { App },
-  template: '<App/>'
+  store,
+  render: h => h(App)
 })
