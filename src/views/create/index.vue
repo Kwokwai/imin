@@ -1,4 +1,4 @@
-d<template lang="html">
+<template lang="html">
   <div>
     <div class="admin-container">
       <mavon-editor class="set" v-model="value" @change="getContent"></mavon-editor>
@@ -46,7 +46,7 @@ d<template lang="html">
         v-for="tag in tags"
         :closable="true"
         :close-transition="false"
-        @close="handleClose(tag.name)"
+        @close="handleClose(tag)"
       >
         {{tag.name}}
       </el-tag>
@@ -69,8 +69,9 @@ d<template lang="html">
 </template>
 
 <script>
-import axios from 'axios'
-export default{
+  import axios from 'axios'
+
+  export default{
   data () {
     return {
       value: '# 请开始你的表演',
@@ -102,14 +103,13 @@ export default{
       } else if (!this.content) {
         this.$message.error('无内容')
       } else {
-        axios.post('/api/articleSub', {
+        this.$api.post('/article', {
           title: this.form.title,
           tag: this.form.tag,
-          describtion: this.form.describtion,
+          summary: this.form.describtion,
           content: this.content
-        }).then((response) => {
-          let res = response.data
-          if (res.status === '0') {
+        }, response => {
+          if (response.status === 200) {
             this.$message({
               type: 'success',
               message: '文章已发布'
@@ -122,22 +122,23 @@ export default{
       }
     },
     getTags () {
-      axios.get('/api/tags').then((result) => {
-        let res = result.data
-        if (res.status === '0') {
-          this.tags = res.result.list
+      this.$api.get('/tag', null, response => {
+        let res = response
+        console.log(res)
+        if (res.status === 200) {
+          this.tags = res.data.list
         } else {
           this.tags = []
         }
       })
     },
     handleClose (tag) {
+      console.log(this.$api)
       this.tags.splice(this.tags.indexOf(tag.name), 1)
-      axios.post('/api/tagsDelete', {
+      this.$api.delete('/tag', null, response => {
         tagDel: tag
-      }).then((response) => {
-        let res = response.data
-        if (res.status === '0') {
+        let res = response
+        if (res.status === 200) {
           this.$message({
             type: 'success',
             message: '标签已删除'
@@ -157,11 +158,10 @@ export default{
       let inputValue = this.inputValue
       if (inputValue) {
         this.tags.push({name: inputValue})
-        axios.post('/api/tagsAdd', {
+        this.$api.post('/tag', {'name': inputValue}, response => {
           tagAdd: inputValue
-        }).then((response) => {
-          let res = response.data
-          if (res.status === '0') {
+          let res = response
+          if (res.status === 200) {
             this.$message({
               type: 'success',
               message: '标签已添加'

@@ -13,12 +13,15 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import router from './router'
 import store from './store'
+import api from './api/index'
 
 import '@/icons' // icon
 import '@/permission' // permission control
 
 Vue.use(ElementUI, { locale })
 Vue.use(mavonEditor)
+Vue.prototype.$api = api
+
 
 Vue.config.productionTip = false
 

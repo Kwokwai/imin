@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Layout from '../views/layout/Layout'
+import Article from '../views/article/index'
 
 Vue.use(Router)
 
@@ -52,6 +53,20 @@ export const constantRouterMap = [
         name: 'Create',
         component: () => import('@/views/create/index'),
         meta: { title: '新建文章', icon: 'form' }
+      }
+    ]
+  },
+  {
+    path: '/article',
+    name: 'Article',
+    hidden: true,
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: 'Article',
+        component: () => import('@/views/article/index'),
+        // meta: { title: '新建文章', icon: 'form' }
       }
     ]
   },
