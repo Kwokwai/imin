@@ -16,15 +16,21 @@
         </el-popover>
         <el-button v-popover:popover5 class="submit">发布</el-button>
         <div class="left">
-          <el-button @click="dialogTableVisible = true">填写信息</el-button>
-          <el-button @click="dialogTableVisible2 = true">添加分类</el-button>
+          <el-button @click="modalVisible = true">填写信息</el-button>
+          <el-button @click="modalVisible2 = true">添加分类</el-button>
+          <el-button @click="modalVisible3 = true">添加标签</el-button>
         </div>
       </div>
     </div>
-    <el-dialog title="文章信息" :visible.sync="dialogTableVisible">
+    <el-dialog title="文章信息" :visible.sync="modalVisible">
       <el-form :model="form">
         <el-form-item label="文章标题" :label-width="formLabelWidth">
           <el-input v-model="form.title" placeholder="请输入标题"></el-input>
+        </el-form-item>
+        <el-form-item label="文章分类" :label-width="formLabelWidth">
+          <el-select v-model="form.category" placeholder="请选择活动区域">
+            <el-option :key="item.name" :label="item.name" :value="item.name" v-for="item in categorys"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="文章标签" :label-width="formLabelWidth">
           <el-select v-model="form.tag" placeholder="请选择活动区域">
@@ -36,17 +42,42 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogTableVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogTableVisible = false">确 定</el-button>
+        <el-button @click="modalVisible = false">取 消</el-button>
+        <el-button type="primary" @click="modalVisible = false">确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="标签分类" :visible.sync="dialogTableVisible2" id="tags">
+    <el-dialog title="标签分类" :visible.sync="modalVisible2" id="tags">
+      <el-tag
+        :key="category.name"
+        v-for="category in categorys"
+        :closable="true"
+        :close-transition="false"
+        @close="CategoryClose(category)"
+      >
+        {{category.name}}
+      </el-tag>
+      <el-input
+        class="input-new-tag"
+        v-if="inputVisible"
+        v-model="inputValue"
+        ref="saveTagInput"
+        size="mini"
+        @keyup.enter.native="handleCategory"
+        @blur="handleCategory"
+      >
+      </el-input>
+      <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Category</el-button>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="modalVisible2 = false">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="标签分类" :visible.sync="modalVisible3" id="tags">
       <el-tag
         :key="tag.name"
         v-for="tag in tags"
         :closable="true"
         :close-transition="false"
-        @close="handleClose(tag)"
+        @close="TagClose(tag)"
       >
         {{tag.name}}
       </el-tag>
@@ -56,13 +87,13 @@
         v-model="inputValue"
         ref="saveTagInput"
         size="mini"
-        @keyup.enter.native="handleInputConfirm"
-        @blur="handleInputConfirm"
+        @keyup.enter.native="handleTag"
+        @blur="handleTag"
       >
       </el-input>
       <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogTableVisible2 = false">确 定</el-button>
+        <el-button type="primary" @click="modalVisible3 = false">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -76,10 +107,12 @@
     return {
       value: '# 请开始你的表演',
       tags: [],
+      categorys: [],
       content: '',
       visible2: false,
-      dialogTableVisible: false,
-      dialogTableVisible2: false,
+      modalVisible: false,
+      modalVisible2: false,
+      modalVisible3: false,
       inputValue: '',
       inputVisible: false,
       form: {
@@ -92,6 +125,7 @@
   },
   mounted () {
     this.getTags()
+    this.getCategorys()
   },
   methods: {
     getContent (value, render) {
@@ -121,6 +155,18 @@
         })
       }
     },
+    getCategorys () {
+        this.$api.get('/category', null, response => {
+        let res = response
+        console.log(res)
+        if (res.status === 200) {
+          this.categorys = res.data.list
+          console.log(this.categorys)
+        } else {
+          this.categorys = []
+        }
+      })
+    },
     getTags () {
       this.$api.get('/tag', null, response => {
         let res = response
@@ -132,12 +178,30 @@
         }
       })
     },
-    handleClose (tag) {
+    CategoryClose (category) {
+      console.log(this.$api)
+      this.categorys.splice(this.categorys.indexOf(category.name), 1)
+      this.$api.delete('/category', {"id":category.id}, response => {
+        // tagDel: category
+        let res = response
+        if (res.status === 200) {
+          this.$message({
+            type: 'success',
+            message: '分类已删除'
+          })
+        } else {
+          this.$message.error('未删除')
+        }
+      })
+    },
+    TagClose (tag) {
       console.log(this.$api)
       this.tags.splice(this.tags.indexOf(tag.name), 1)
-      this.$api.delete('/tag', null, response => {
-        tagDel: tag
+      this.$api.delete('/tag', {"id": tag.id}, response => {
+        // tagDel: tag
         let res = response
+        console.log(666666666666666)
+        console.log(tag.id)
         if (res.status === 200) {
           this.$message({
             type: 'success',
@@ -154,12 +218,30 @@
         this.$refs.saveTagInput.$refs.input.focus()
       })
     },
-    handleInputConfirm () {
+    handleCategory () {
+      let inputValue = this.inputValue
+      if (inputValue) {
+        this.categorys.push({name: inputValue})
+        this.$api.post('/category', {'name': inputValue}, response => {
+          let res = response
+          if (res.status === 200) {
+            this.$message({
+              type: 'success',
+              message: '分类已添加'
+            })
+          } else {
+            this.$message.error('未添加')
+          }
+        })
+      }
+      this.inputVisible = false
+      this.inputValue = ''
+    },
+    handleTag () {
       let inputValue = this.inputValue
       if (inputValue) {
         this.tags.push({name: inputValue})
         this.$api.post('/tag', {'name': inputValue}, response => {
-          tagAdd: inputValue
           let res = response
           if (res.status === 200) {
             this.$message({
